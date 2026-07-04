@@ -1,0 +1,77 @@
+classDiagram
+    class Owner {
+        +str name
+        +time available_start
+        +time available_end
+        +int max_daily_minutes
+    }
+
+    class Pet {
+        +str name
+        +str species
+        +float age_years
+        +str notes
+    }
+
+    class Priority {
+        <<enumeration>>
+        LOW
+        MEDIUM
+        HIGH
+        URGENT
+        +from_value(value) Priority
+    }
+
+    class CareTask {
+        +str title
+        +int duration_minutes
+        +Priority priority
+        +str category
+        +str recurrence
+        +time preferred_start
+        +time fixed_start
+        +tuple days_of_week
+        +occurs_on(plan_date) bool
+    }
+
+    class ScheduledTask {
+        +CareTask task
+        +time start
+        +time end
+        +str reason
+        +priority Priority
+    }
+
+    class SkippedTask {
+        +CareTask task
+        +str reason
+    }
+
+    class DailyPlan {
+        +Owner owner
+        +Pet pet
+        +date plan_date
+        +tuple scheduled
+        +tuple skipped
+        +total_minutes int
+        +as_rows() list
+        +summary() str
+    }
+
+    class PawPalScheduler {
+        +Owner owner
+        +Pet pet
+        +generate_plan(tasks, plan_date, max_minutes) DailyPlan
+        +detect_conflicts(tasks) list
+    }
+
+    CareTask --> Priority : uses
+    ScheduledTask --> CareTask : wraps
+    SkippedTask --> CareTask : explains
+    DailyPlan o-- ScheduledTask : scheduled items
+    DailyPlan o-- SkippedTask : skipped items
+    DailyPlan --> Owner : for
+    DailyPlan --> Pet : for
+    PawPalScheduler --> Owner : reads availability
+    PawPalScheduler --> Pet : plans care for
+    PawPalScheduler --> CareTask : schedules
